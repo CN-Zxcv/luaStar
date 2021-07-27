@@ -8,6 +8,7 @@ local starlib = require('starlib')
 
 local oop = require('oop.oop')
 local class = oop.class
+local static = oop.static
 
 class('Item', function()
 
@@ -29,7 +30,7 @@ class('ItemEquip', function()
     -- class 内置希望在这个位置执行，但是又希望使用inherit
 
     function ctor(self, propId, name)
-        -- super.ctor(self, propId)
+        super.ctor(self, propId)
         self.name = name
     end
 
@@ -44,3 +45,14 @@ local item = ItemEquip.new(1, 'item')
 print('item', debug.dump(item))
 -- print('item.getPropId', item:getPropId())
 print('item.getName', item:getName())
+
+
+static('ItemFactory', function()
+    function hello(self, msg)
+        print('msg', msg)
+        return msg
+    end
+end)
+
+local msg = ItemFactory:hello('world')
+print(msg)
