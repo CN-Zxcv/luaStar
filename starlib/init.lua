@@ -5,7 +5,7 @@ _ENV = _G.starlib
 __PACKAGE_PATH__ = __PACKAGE_PATH__ or package.path
 __PACKAGE_CPATH__ = __PACKAGE_CPATH__ or package.cpath
 
-function configurePath(paths)
+local function configurePath(paths)
     if not paths then
         return
     end
@@ -17,7 +17,7 @@ function configurePath(paths)
     package.path = __PACKAGE_PATH__ .. ';' .. table.concat(t, ';')
 end
 
-function configureCPath(paths)
+local function configureCPath(paths)
     if not paths then
         return
     end
@@ -28,12 +28,16 @@ function configureCPath(paths)
     package.cpath = __PACKAGE_CPATH__ .. ';' .. table.concat(t, ';')
 end
 
+function requireBasicLibs()
+    require('starcore.require')
+    require('extension')
+    require('oop')
+end
+
 function configure(opt)
     configurePath(opt.paths)
     configureCPath(opt.cpaths)
-    require('starcore.require')
-    require('extension')
-    require('logger')
+    requireBasicLibs()
 end
 
 configure({paths={'./starlib'}})

@@ -1,15 +1,6 @@
 
 local starlib = require('starlib')
 
--- require('oop.test.env')
-
--- env.class(function()
--- end)
-
-local oop = require('oop.oop')
-local class = oop.class
-local static = oop.static
-
 class('Item', function()
 
     function ctor(self, propId)
