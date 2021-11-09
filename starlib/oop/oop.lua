@@ -1,6 +1,4 @@
 
--- 基类的函数拷到子类上，减少调用消耗
--- 由此导致单独热更类需要专门处理，但是付出是可以接受的
 local function mergeFunctions(child, super)
     for k, v in pairs(super) do
         if type(v) == 'function' then
@@ -9,56 +7,79 @@ local function mergeFunctions(child, super)
     end
 end
 
-local function class(name, fn)
+local function class(mod, fn)
+    if type(mod) == 'function' then
+        mod, fn = nil, mod
+    end
+
     local env = debug.getenv(fn)
     assert(env, 'no env')
-
-    local m = env[name] or setmetatable({}, {__index = env})
-    env[name] = m
-
+    local m = mod or setmetatable({}, {__index = env})
+    
     local _m = {
         __index = m
     }
-
-    function m.inherit(super)
-        m.super = super
-        mergeFunctions(m, super)
-    end
-
+    
     function m.ctor(self, ...)
     end
 
-    function m.schema(schema)
-        m._schema = schema
+    function m.m()
+        return m
     end
 
-    debug.setenv(fn, m)
-    fn()
+    debug.setenv(fn, m)()
 
     function m.new(...)
-        local o = setmetatable({_data={}}, _m)
+        local o = setmetatable({}, _m)
         o:ctor(...)
         return o
     end
-
+    
+    return m
 end
 
-local function static(name, fn)
-    local env = debug.getenv(fn)
-    assert(env, 'no env')
-    local m = env[name] or setmetatable({}, {__index = env})
-    env[name] = m
+local _class_mt = {
+    __index = {
+        inherit = function(child, super)
+            child.super = super
+            mergeFunctions(child, super)
+        end,
+        schema = function(child, schema)
+            child.schema = schema
+        end,
+    },
+    __call = function(_, ...)
+        return class(...)
+    end,
+}
 
-    function m.inherit(super)
-        m.super = super
-        mergeFunctions(m, super)
+local function static(mod, fn)
+    if type(mod) == 'function' then
+        mod, fn = nil, mod
     end
 
-    debug.setenv(fn, m)
-    fn()
+    local env = debug.getenv(fn)
+    assert(env, 'no env')
+    local m = mod or setmetatable({}, {__index = env})
+
+    debug.setenv(fn, m)()
+
+    return m
 end
 
+local _static_mt = {
+    __index = {
+        inherit = function(child, super)
+            child.super = super
+            mergeFunctions(child, super)
+        end,
+    },
+    __call = function(_, ...)
+        return static(...)
+    end,
+}
+
 return {
-    class = class,
-    static = static,
+    class = setmetatable({}, _class_mt),
+    static = setmetatable({}, _static_mt),
 }

@@ -1,4 +1,6 @@
 
+local starlib = require('starlib')
+
 function class(fn)
     for i = 1, 3 do
         print('class. getinfo', i, debug.dump(debug.getinfo(i)))

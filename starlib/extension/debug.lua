@@ -69,7 +69,7 @@ function debug.dump(t, step, depth)
     return str
 end
 
-function setenv(fn, env)
+function debug.setenv(fn, env)
     for i = 1, math.huge do
         local n = debug.getupvalue(fn, i)
         if n == '_ENV' then
@@ -82,7 +82,7 @@ function setenv(fn, env)
     return fn
 end
 
-function getenv(fn)
+function debug.getenv(fn)
     for i = 1, math.huge do
         local n, v = debug.getupvalue(fn, i)
         if n == '_ENV' then

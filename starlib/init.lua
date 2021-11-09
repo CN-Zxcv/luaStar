@@ -28,13 +28,13 @@ local function configureCPath(paths)
     package.cpath = __PACKAGE_CPATH__ .. ';' .. table.concat(t, ';')
 end
 
-function requireBasicLibs()
+local function requireBasicLibs()
     require('starcore.require')
     require('extension')
     require('oop')
 end
 
-function configure(opt)
+local function configure(opt)
     configurePath(opt.paths)
     configureCPath(opt.cpaths)
     requireBasicLibs()
@@ -44,7 +44,11 @@ configure({paths={'./starlib'}})
 
 return {
     configure = configure,
-    reload = function()
-        package.loaded = {}
+    unrequire = function()
+        -- loaded只是引用，改变这个值并不会改变 require 使用的表
+        -- 我们无法直接设置那个表，所以要遍历
+        for k, _ in pairs(package.loaded) do
+            package.loaded[k] = nil
+        end
     end,
 }

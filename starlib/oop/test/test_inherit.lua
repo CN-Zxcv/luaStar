@@ -1,7 +1,7 @@
 
 local starlib = require('starlib')
 
-class('Item', function()
+local Item = class(function()
 
     function ctor(self, propId)
         self.propId = propId
@@ -14,11 +14,9 @@ end)
 
 print('class.Item', debug.dump(Item))
 
-class('ItemEquip', function()
-    print('class.Item inherit', debug.dump(Item))
-    inherit(Item)
+local ItemEquip = class(function()
 
-    -- class 内置希望在这个位置执行，但是又希望使用inherit
+    class.inherit(m(), Item)
 
     function ctor(self, propId, name)
         super.ctor(self, propId)
@@ -38,7 +36,7 @@ print('item', debug.dump(item))
 print('item.getName', item:getName())
 
 
-static('ItemFactory', function()
+local ItemFactory = static(function()
     function hello(self, msg)
         print('msg', msg)
         return msg
