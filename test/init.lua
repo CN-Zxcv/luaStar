@@ -8,5 +8,5 @@ starlib.configure({
 
 require('extension')
 print('starlib', debug.dump(starlib))
-starlib.reload()
+starlib.unrequire()
 require('extension')

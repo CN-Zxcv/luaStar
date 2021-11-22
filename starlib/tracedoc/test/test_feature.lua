@@ -15,7 +15,7 @@ local Entity = class(function()
 end)
 
 
-local function _meta_next(obj, k)
+local function iter(obj, k)
     -- iterate raw first
     local v = nil
     if k == nil or rawget(obj, k) then
@@ -48,7 +48,7 @@ end
 
 local _meta = {
     __pairs = function(obj)
-        return _meta_next, obj
+        return iter, obj
     end,
     __index = function(obj, k)
         local v = rawget(obj, k)
@@ -62,25 +62,43 @@ local _meta = {
     end
 }
 
+print('--------- next iter')
+local obj = setmetatable({
+    _doc = {
+        a = 1,
+
+        b = 1,
+
+        c = {
+            a = 1,
+        },
+    },
+    b = 2,
+    c = {
+        a = 2,
+    }
+}, _meta)
+print('duplicate raw and doc')
+print(debug.dump(obj))
 
 
-local function dump(doc)
-    print('doc', debug.dump(doc))
-    print('keys', debug.dump(doc._keys))
-    print('changes', debug.dump(doc._changes))
-    print('lastversion', debug.dump(doc._lastversion))
-    print('tracedoc.dump', tracedoc.dump(doc))
-end
 
--- local doc = tracedoc.new()
--- doc.entity = Entity.new()
--- dump(doc)
 
--- local chgs = tracedoc.commit(doc, {})
--- print('chgs', debug.dump(chgs))
+print('--------- tracedoc.entity')
+local doc = tracedoc.new()
+doc.entity = Entity.new()
 
--- dump(doc)
+print('new entity')
+print(tracedoc.dump(doc))
 
+local chgs = tracedoc.commit(doc, {})
+print('new entity chgs', debug.dump(chgs))
+
+doc.entity.id = 1
+local chgs = tracedoc.commit(doc, {})
+print('modify entity chgs', debug.dump(chgs))
+
+print('--------- tracedoc.meta')
 
 local obj = setmetatable({
     _doc = {

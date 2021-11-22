@@ -38,6 +38,37 @@ local function class(mod, fn)
     return m
 end
 
+local function iter(obj, k)
+    -- iterate raw first
+    local v = nil
+    if k == nil or rawget(obj, k) then
+        while true do
+            k, v = next(obj, k)
+            if k == nil then
+                break
+            end
+            if k ~= '_doc' then
+                return k, v
+            end
+        end
+    end
+
+    -- then, iterate doc
+    local v = nil
+    local doc = rawget(obj, '_doc')
+    if doc and (k == nil or doc[k]) then
+        while true do
+            k, v = next(doc, k)
+            if k == nil then
+                break
+            end
+            if not rawget(obj, k) then
+                return k, v
+            end
+        end
+    end
+end
+
 local _class_mt = {
     __index = {
         inherit = function(child, super)
@@ -50,6 +81,9 @@ local _class_mt = {
     },
     __call = function(_, ...)
         return class(...)
+    end,
+    __pairs = function(obj)
+        return iter, obj
     end,
 }
 
@@ -77,6 +111,9 @@ local _static_mt = {
     __call = function(_, ...)
         return static(...)
     end,
+    __pairs = function(obj)
+        return iter, obj
+    end
 }
 
 return {

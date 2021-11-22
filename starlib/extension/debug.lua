@@ -28,13 +28,12 @@ local function lvalueToStr(x)
     end
 end
 
-function debug.dump(t, step, depth)
+local function dump(t, dumped, step, depth)
     local str = ""
     step = step or 0
     if type(t) == "table" then
-
         if step == 0 then 
-            str = "{\n" 
+            str = "{\n"
         end
     
         if depth and depth == 0 then
@@ -42,9 +41,17 @@ function debug.dump(t, step, depth)
         else
             for k, v in pairs(t) do
                 if type(v) == "table" then
-                    str = str..string.format("%s%s = {\n", mkSpace(step*2+2), lvalueToStr(k))
-                    str = str..debug.dump(v, step+1, depth and depth - 1)
-                    str = str..string.format("%s}\n", mkSpace(step*2+2))
+                    local mt = getmetatable(v)
+                    if mt and mt.__tostring then
+                        str = str .. string.format('%s%s = %s\n', mkSpace(step * 2 + 2), lvalueToStr(k), tostring(v))
+                    elseif dumped[v] then
+                        str = str .. string.format('%s%s = <%s>\n', mkSpace(step * 2 + 2), lvalueToStr(k), v)
+                    else
+                        dumped[t] = true
+                        str = str..string.format("%s%s = {\n", mkSpace(step*2+2), lvalueToStr(k))
+                        str = str..dump(v, dumped, step+1, depth and depth - 1)
+                        str = str..string.format("%s}\n", mkSpace(step*2+2))
+                    end
                 else
                     str = str..string.format("%s%s = %s\n", mkSpace(step*2+2), lvalueToStr(k), rvalueToStr(v))
                 end
@@ -67,6 +74,10 @@ function debug.dump(t, step, depth)
     end
 	
     return str
+end
+
+function debug.dump(t, step, depth)
+    return dump(t, {}, step, depth)
 end
 
 function debug.setenv(fn, env)
