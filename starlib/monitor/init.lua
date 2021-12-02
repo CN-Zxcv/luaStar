@@ -46,6 +46,7 @@ local function compare(name, num, fns)
 
     local result = {}
     local cut = loop * 0.2
+    local nameMaxLen = 0
     for k, v in pairs(raw) do
         table.sort(v)
         local sum = 0
@@ -55,14 +56,15 @@ local function compare(name, num, fns)
         local n = sum / (loop - cut * 2)
         table.insert(result, {k, n})
         min = math.min(min, n)
+        nameMaxLen = math.max(nameMaxLen, string.len(k))
     end
 
     table.sort(result, function(a, b) return a[1] < b[1] end)
 
     local report = {}
-    table.insert(report, string.format('monitor=%s, num=%s, loop=%s, min=%s', name, num, loop, min))
+    table.insert(report, string.format('monitor=%s, num=%s, loop=%s, min=%.4f', name, num, loop, min))
     for _, v in ipairs(result) do
-        table.insert(report, string.format('    name=%s, use=%s, efficiency=%.2f', v[1], v[2], v[2] / min))
+        table.insert(report, string.format('    name=%-'.. nameMaxLen ..'s, use=%.4f, efficiency=%.2f', v[1], v[2], v[2] / min))
     end
 
     return table.concat(report, '\n')
