@@ -13,7 +13,6 @@ local function acquireModule(name, path)
     end
     if path then
         setmetatable(env, {__index = _G})
-        -- env._M = setmetatable({}, {__index = env})
         env._FILE = path
         env._NAME = name
     end

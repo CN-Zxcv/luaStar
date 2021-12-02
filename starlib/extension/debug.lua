@@ -76,8 +76,8 @@ local function dump(t, dumped, step, depth)
     return str
 end
 
-function debug.dump(t, step, depth)
-    return dump(t, {}, step, depth)
+function debug.dump(t, depth)
+    return dump(t, {}, nil, depth)
 end
 
 function debug.setenv(fn, env)

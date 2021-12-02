@@ -1,8 +1,9 @@
 
 local logger = require('logger.logger')
+local output = require('logger.output')
+logger.setOutput(output)
 
 return {
-    getLogger = function(name)
-        return logger.getLogger(name)
-    end
-},
+    get = logger.new,
+    setOutput = logger.setOutput,
+}

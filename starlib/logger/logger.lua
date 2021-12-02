@@ -1,46 +1,48 @@
 
-local innerlog = require('logger.innerlog')
+local format = string.format
 
-local function defaultParseStack()
+local LogLevel = {
+    Debug = 1,
+    Info = 2,
+    Warn = 3,
+    Error = 4,
+    Fatal = 5,
+}
+
+local LogPrefix = {}
+
+Inited = Inited or false
+Output = Output or nil
+
+local function setOutput(fn)
+    Output = fn
 end
 
-class('Logger', function()
+local function new(prefix)
+    local ret = {}
+    for name, level in pairs(LogLevel) do
+        ret[string.lower(string.sub(name, 1, 1))] = function(...)
+            Output(level, prefix, ...)
+        end
+    end
+    return ret
+end
 
-    function m:ctor(name)
-        self.category = name
-        self.context = {}
-        self.parseStack = defaultParseStack
-        innerlog('Logger, ctor, category=%s, level=%s', self.category, self:getLevel())
+local function init()
+    if Inited then
+        return
     end
 
-    function m:getLevel()
-        -- return 
+    for name, lv in pairs(LogLevel) do
+        LogPrefix[lv] = string.upper(string.sub(name, 1, 1))
     end
+end
+init()
 
-    function m:setLevel()
-
-    end
-
-    function m:log(level, ...)
-    end
-
-    function m:d(...)
-        self:log(LogLevel.Debug, ...)
-    end
-
-    function m:i(...)
-        self:log(LogLevel.Info, ...)
-    end
-
-    function m:w(...)
-        self:log(LogLevel.Warn, ...)
-    end
-
-    function m:e(...)
-        self:log(LogLevel.Error, ...)
-    end
-
-    function m:f(...)
-        self:log(LogLevel.Fatal, ...)
-    end
-end)
+return {
+    init = init,
+    new = new,
+    LogLevel = LogLevel,
+    LogPrefix = LogPrefix,
+    setOutput = setOutput,
+}
