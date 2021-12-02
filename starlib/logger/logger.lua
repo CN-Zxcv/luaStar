@@ -1,6 +1,4 @@
 
-local format = string.format
-
 local LogLevel = {
     Debug = 1,
     Info = 2,

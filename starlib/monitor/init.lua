@@ -8,7 +8,7 @@ end
 
 local function run(name, num, fn)
     local use = clock()
-    for i = 1, num do
+    for _ = 1, num do
         fn()
     end
     return string.format('monitor=%s, num=%s, use=%s', name, num, use())
@@ -26,18 +26,18 @@ local function compare(name, num, fns)
     local min = math.huge
     collectgarbage('stop')
     local loop = 10
-    for i = 1, loop do
-        for name, fn in pairs(fns) do
+    for _ = 1, loop do
+        for fname, fn in pairs(fns) do
             collectgarbage()
             local watch = clock()
-            for i = 1, num do
+            for _ = 1, num do
                 fn()
             end
             local use = watch()
-            local t = raw[name]
+            local t = raw[fname]
             if not t then
                 t = {}
-                raw[name] = t
+                raw[fname] = t
             end
             table.insert(t, use)
         end
@@ -60,7 +60,7 @@ local function compare(name, num, fns)
     table.sort(result, function(a, b) return a[1] < b[1] end)
 
     local report = {}
-    table.insert(report, string.format('monitor=%s, num=%s, min=%s', name, num, min))
+    table.insert(report, string.format('monitor=%s, num=%s, loop=%s, min=%s', name, num, loop, min))
     for _, v in ipairs(result) do
         table.insert(report, string.format('    name=%s, use=%s, efficiency=%.2f', v[1], v[2], v[2] / min))
     end

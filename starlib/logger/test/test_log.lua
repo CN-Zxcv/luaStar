@@ -1,5 +1,5 @@
 
-local starlib = require('starlib')
+require('starlib')
 local log = require('starlib.logger').get('test_log')
 
 log.d('hello')
