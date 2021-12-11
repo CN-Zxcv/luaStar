@@ -61,30 +61,6 @@ function dump(t, depth)
     return tconcat(runDump({}, t, {}, 0, depth or 16))
 end
 
-function setenv(fn, env)
-    for i = 1, math.huge do
-        local n = getupvalue(fn, i)
-        if n == '_ENV' then
-            upvaluejoin(fn, i, function() return name end, 1)
-            setupvalue(fn, i, env)
-        elseif not n then
-            break
-        end
-    end
-    return fn
-end
-
-function getenv(fn)
-    for i = 1, math.huge do
-        local n, v = getupvalue(fn, i)
-        if n == '_ENV' then
-            return v
-        elseif not n then
-            break
-        end
-    end
-end
-
 if not getfenv then
     function getfenv(f)
         local cf, up = type(f) == 'function' and f or getinfo(f + 1, 'f').func, 0
@@ -107,5 +83,22 @@ if not getfenv then
                 return val 
             end
         end
+    end
+end
+
+if not setfenv then
+    setfenv = function (f, t)
+        f = type(f) == 'function' and f or getinfo(f + 1, 'f').func
+        local up, name  = 0
+        repeat
+            up = up + 1
+            name = getupvalue(f, up)
+        until name == '_ENV' or name == nil
+        if name then 
+            upvaluejoin(f, up, function() 
+                return t 
+            end, 1) 
+        end
+        return f
     end
 end

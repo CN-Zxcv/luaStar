@@ -12,7 +12,7 @@ local function class(mod, fn)
         mod, fn = nil, mod
     end
 
-    local env = debug.getenv(fn)
+    local env = debug.getfenv(fn)
     assert(env, 'no env')
     local m = mod or setmetatable({}, {__index = env})
     
@@ -20,14 +20,14 @@ local function class(mod, fn)
         __index = m
     }
     
-    function m.ctor(self, ...)
+    function m.ctor()
     end
 
     function m.m()
         return m
     end
 
-    debug.setenv(fn, m)()
+    debug.setfenv(fn, m)(m)
 
     function m.new(...)
         local o = setmetatable({}, _m)
@@ -39,8 +39,8 @@ local function class(mod, fn)
 end
 
 local function iter(obj, k)
-    -- iterate raw first
     local v = nil
+    -- iterate raw first
     if k == nil or rawget(obj, k) then
         while true do
             k, v = next(obj, k)
@@ -54,7 +54,6 @@ local function iter(obj, k)
     end
 
     -- then, iterate doc
-    local v = nil
     local doc = rawget(obj, '_doc')
     if doc and (k == nil or doc[k]) then
         while true do
@@ -92,11 +91,11 @@ local function static(mod, fn)
         mod, fn = nil, mod
     end
 
-    local env = debug.getenv(fn)
+    local env = debug.getfenv(fn)
     assert(env, 'no env')
     local m = mod or setmetatable({}, {__index = env})
 
-    debug.setenv(fn, m)()
+    debug.setfenv(fn, m)()
 
     return m
 end

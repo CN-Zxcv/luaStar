@@ -14,7 +14,7 @@ function class(fn)
         print('fn. getupvalue', i, debug.getupvalue(fn, i))
     end
 
-    print('fn. getenv', debug.getenv(fn))
+    print('fn. getfenv', debug.getfenv(fn))
 
     local inner_a = 1
 
